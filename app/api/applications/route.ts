@@ -1,56 +1,19 @@
-import { env } from "cloudflare:workers";
-import { desc } from "drizzle-orm";
-import { getDb } from "../../../db";
-import { applications } from "../../../db/schema";
+import { mkdir, writeFile, unlink } from "node:fs/promises";
+import path from "node:path";
+import { NextResponse } from "next/server";
+import { getDb, resumeDirectory } from "../../../db";
 
+export const runtime = "nodejs";
 const MAX_PDF_SIZE = 10 * 1024 * 1024;
+const allowedGroups = new Set(["机械组", "电控组", "硬件组", "算法组", "运营组", "不确定"]);
 
 function value(form: FormData, key: string) {
   const entry = form.get(key);
   return typeof entry === "string" ? entry.trim() : "";
 }
 
-function jsonError(error: string, status: number) {
-  return Response.json({ error }, { status });
-}
-
-function publicApplication(row: typeof applications.$inferSelect) {
-  return {
-    id: row.id,
-    name: row.name,
-    initials: row.name.slice(-2).toUpperCase(),
-    phone: row.phone,
-    year: row.year,
-    major: row.major,
-    group: row.primaryGroup,
-    secondaryGroup: row.secondaryGroup,
-    intro: row.about,
-    project: "详见已提交的 PDF 简历",
-    skills: [row.primaryGroup, row.secondaryGroup].filter(Boolean),
-    status: row.status,
-    score: row.score,
-    reviewNote: row.reviewNote,
-    resumeFilename: row.resumeFilename,
-    resumeSize: row.resumeSize,
-    pdfUrl: `/api/applications/${row.id}/resume`,
-    submitted: new Date(row.createdAt).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }),
-    createdAt: row.createdAt,
-  };
-}
-
-export async function GET() {
-  try {
-    const rows = await getDb().select().from(applications).orderBy(desc(applications.createdAt)).limit(100);
-    return Response.json({ applications: rows.map(publicApplication) });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "读取投递记录失败";
-    return Response.json({ error: message }, { status: 500 });
-  }
-}
-
 export async function POST(request: Request) {
-  let storedKey = "";
-
+  let storedPath = "";
   try {
     const form = await request.formData();
     const name = value(form, "name");
@@ -58,61 +21,39 @@ export async function POST(request: Request) {
     const year = value(form, "year");
     const major = value(form, "major");
     const about = value(form, "about");
-    const groups = form.getAll("group").filter((entry): entry is string => typeof entry === "string" && Boolean(entry.trim())).slice(0, 2);
+    const groups = form.getAll("group").filter((entry): entry is string => typeof entry === "string" && allowedGroups.has(entry)).slice(0, 2);
     const resume = form.get("resume");
 
     if (!name || !phone || !year || !major || !about || groups.length === 0) {
-      return jsonError("请完整填写姓名、电话、年级、专业、意向组别和个人介绍", 400);
+      return NextResponse.json({ error: "请完整填写姓名、电话、年级、专业、意向组别和个人介绍" }, { status: 400 });
     }
-
-    if (!(resume instanceof File) || resume.size === 0) {
-      return jsonError("PDF 简历为必交项目", 400);
+    if (name.length > 40 || phone.length > 30 || major.length > 80 || about.length > 1000) {
+      return NextResponse.json({ error: "部分字段超出长度限制" }, { status: 400 });
     }
-
-    const isPdf = resume.type === "application/pdf" || resume.name.toLowerCase().endsWith(".pdf");
-    if (!isPdf) return jsonError("简历仅支持 PDF 格式", 415);
-    if (resume.size > MAX_PDF_SIZE) return jsonError("PDF 简历不能超过 10 MB", 413);
+    if (!(resume instanceof File) || resume.size === 0) return NextResponse.json({ error: "PDF 简历为必交项目" }, { status: 400 });
+    if (resume.size > MAX_PDF_SIZE) return NextResponse.json({ error: "PDF 简历不能超过 10 MB" }, { status: 413 });
     const signature = await resume.slice(0, 5).text();
-    if (signature !== "%PDF-") return jsonError("上传的文件不是有效的 PDF", 415);
+    if (signature !== "%PDF-") return NextResponse.json({ error: "上传的文件不是有效的 PDF" }, { status: 415 });
 
     const id = crypto.randomUUID();
-    const safeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-100) || "resume.pdf";
-    storedKey = `applications/${id}/${safeName}`;
-    const runtime = env as unknown as { RESUMES: R2Bucket };
-
-    await runtime.RESUMES.put(storedKey, resume.stream(), {
-      httpMetadata: { contentType: "application/pdf", contentDisposition: `inline; filename="${safeName}"` },
-      customMetadata: { applicationId: id, originalFilename: resume.name },
-    });
+    const resumeKey = `${id}.pdf`;
+    storedPath = path.join(resumeDirectory, resumeKey);
+    await mkdir(resumeDirectory, { recursive: true, mode: 0o700 });
+    await writeFile(storedPath, Buffer.from(await resume.arrayBuffer()), { mode: 0o600, flag: "wx" });
 
     const now = Date.now();
-    const [row] = await getDb().insert(applications).values({
-      id,
-      name,
-      phone,
-      year,
-      major,
-      primaryGroup: groups[0],
-      secondaryGroup: groups[1] ?? null,
-      about,
-      resumeKey: storedKey,
-      resumeFilename: resume.name,
-      resumeContentType: "application/pdf",
-      resumeSize: resume.size,
-      status: "新投递",
-      score: 80,
-      reviewNote: "",
-      createdAt: now,
-      updatedAt: now,
-    }).returning();
+    getDb().prepare(`
+      INSERT INTO applications (
+        id, name, phone, year, major, primary_group, secondary_group, about,
+        resume_key, resume_filename, resume_content_type, resume_size,
+        status, score, review_note, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'application/pdf', ?, '新投递', 80, '', ?, ?)
+    `).run(id, name, phone, year, major, groups[0], groups[1] ?? null, about, resumeKey, resume.name.slice(0, 160), resume.size, now, now);
 
-    return Response.json({ application: publicApplication(row) }, { status: 201 });
+    return NextResponse.json({ id, message: "投递成功" }, { status: 201 });
   } catch (error) {
-    if (storedKey) {
-      const runtime = env as unknown as { RESUMES: R2Bucket };
-      await runtime.RESUMES.delete(storedKey).catch(() => undefined);
-    }
-    const message = error instanceof Error ? error.message : "提交失败，请稍后重试";
-    return Response.json({ error: message }, { status: 500 });
+    if (storedPath) await unlink(storedPath).catch(() => undefined);
+    console.error("application upload failed", error);
+    return NextResponse.json({ error: "提交失败，请稍后重试" }, { status: 500 });
   }
 }

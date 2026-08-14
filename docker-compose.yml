@@ -1,0 +1,21 @@
+services:
+  rm-recruit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rm-recruit:latest
+    container_name: rm-recruit
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    environment:
+      DATA_DIR: /data
+      CAPTAIN_USERNAME: "${CAPTAIN_USERNAME:-captain}"
+      CAPTAIN_PASSWORD: "${CAPTAIN_PASSWORD:?请在 .env 中设置 CAPTAIN_PASSWORD}"
+      CAPTAIN_DISPLAY_NAME: "${CAPTAIN_DISPLAY_NAME:-队长}"
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+    volumes:
+      - rm-recruit-data:/data
+
+volumes:
+  rm-recruit-data:
