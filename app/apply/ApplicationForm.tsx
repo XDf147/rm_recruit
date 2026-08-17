@@ -47,8 +47,8 @@ function GroupIcon({ group }: { group: string }) {
   return <i className={`group-option-icon ${icon.className}`} aria-hidden="true">{icon.glyph}</i>;
 }
 
-export function ApplicationForm() {
-  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+export function ApplicationForm({ initialGroup }: { initialGroup?: string }) {
+  const [selectedGroups, setSelectedGroups] = useState<string[]>(initialGroup ? [initialGroup] : []);
   const [fileName, setFileName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);

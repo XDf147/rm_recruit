@@ -53,3 +53,17 @@ test("enforces captain and group-leader access server-side", async () => {
   assert.match(applications, /primary_group = \? OR secondary_group = \?/);
   assert.match(accounts, /admin\.role !== "captain"/);
 });
+
+test("provides clickable group profiles with reserved media slots", async () => {
+  const [overview, profile, groups, applicant] = await Promise.all([
+    read("app/groups/page.tsx"), read("app/groups/[slug]/page.tsx"),
+    read("lib/groups.ts"), read("app/apply/page.tsx"),
+  ]);
+  assert.match(overview, /href={`\/groups\/\${group\.slug}`}/);
+  assert.match(profile, /generateStaticParams/);
+  assert.match(profile, /IMAGE PLACEHOLDER/);
+  assert.match(profile, /unit-theme-\${group\.slug}/);
+  assert.match(groups, /slug: "mechanical"/);
+  assert.match(groups, /slug: "algorithm"/);
+  assert.match(applicant, /initialGroup={initialGroup}/);
+});
