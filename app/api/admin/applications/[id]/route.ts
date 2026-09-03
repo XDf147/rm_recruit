@@ -12,10 +12,19 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   const { id } = await context.params;
   if (!getAccessibleApplication(admin, id)) return NextResponse.json({ error: "无权查看该简历" }, { status: 403 });
 
-  const payload = (await request.json().catch(() => ({}))) as { status?: string; reviewNote?: string; score?: number };
-  if (payload.status !== undefined && !allowedStatuses.has(payload.status)) return NextResponse.json({ error: "无效的审核状态" }, { status: 400 });
-  const score = payload.score === undefined ? undefined : Math.max(0, Math.min(100, Math.round(payload.score)));
-  const reviewNote = payload.reviewNote?.trim().slice(0, 2000);
+  const payload = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  if (payload.status !== undefined && (typeof payload.status !== "string" || !allowedStatuses.has(payload.status))) {
+    return NextResponse.json({ error: "无效的审核状态" }, { status: 400 });
+  }
+  if (payload.score !== undefined && (typeof payload.score !== "number" || !Number.isFinite(payload.score))) {
+    return NextResponse.json({ error: "评分必须是 0–100 的数字" }, { status: 400 });
+  }
+  if (payload.reviewNote !== undefined && typeof payload.reviewNote !== "string") {
+    return NextResponse.json({ error: "审核评语格式无效" }, { status: 400 });
+  }
+
+  const score = typeof payload.score === "number" ? Math.max(0, Math.min(100, Math.round(payload.score))) : undefined;
+  const reviewNote = typeof payload.reviewNote === "string" ? payload.reviewNote.trim().slice(0, 2000) : undefined;
 
   getDb().prepare(`
     UPDATE applications SET
@@ -24,7 +33,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       score = COALESCE(?, score),
       updated_at = ?
     WHERE id = ?
-  `).run(payload.status ?? null, reviewNote ?? null, score ?? null, Date.now(), id);
+  `).run(typeof payload.status === "string" ? payload.status : null, reviewNote ?? null, score ?? null, Date.now(), id);
 
   const updated = getAccessibleApplication(admin, id);
   return NextResponse.json({ application: updated ? serializeApplication(updated) : null });

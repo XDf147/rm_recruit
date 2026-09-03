@@ -16,7 +16,7 @@ export default async function ApplyPage({ searchParams }: { searchParams: Promis
       <div className="blueprint-apply">
         <aside className="blueprint-apply-copy">
           <p className="bp-kicker"><span>加入我们</span> RM TEAM / RECRUITMENT</p>
-          <h1>从一张空白<br />蓝图开始。</h1>
+          <h1>从一张空白蓝图开始。</h1>
           <p>你的经验不必完美。清晰地告诉我们：你做过什么、学到了什么、下一步想去哪里。</p>
           <ol>
             <li className="done"><i>01</i><span><b>了解组别方向</b><small>找到最想投入的战场</small></span></li>

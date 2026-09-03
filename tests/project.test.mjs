@@ -21,7 +21,8 @@ test("keeps applicant and admin surfaces separate", async () => {
     read("app/page.tsx"), read("app/apply/page.tsx"), read("app/admin/page.tsx"),
     read("app/api/applications/route.ts"), read("app/api/admin/applications/route.ts"),
   ]);
-  assert.match(home, /redirect\("\/apply"\)/);
+  assert.match(home, /className="entry-page"/);
+  assert.match(home, /href="\/apply"/);
   assert.match(applicant, /<ApplicationForm/);
   assert.match(admin, /getCurrentAdmin/);
   assert.match(admin, /redirect\("\/admin\/login"\)/);
@@ -37,6 +38,8 @@ test("requires PDF resumes and uses the hardware and algorithm groups", async ()
   assert.match(form, /name="resume" type="file" required/);
   assert.match(uploadApi, /signature !== "%PDF-"/);
   assert.match(uploadApi, /PDF 简历为必交项目/);
+  assert.match(uploadApi, /投递表单格式无效/);
+  assert.match(uploadApi, /new Set/);
   assert.match(groups, /"硬件组"/);
   assert.match(groups, /"算法组"/);
   assert.doesNotMatch(groups, /视觉组/);
@@ -54,14 +57,14 @@ test("enforces captain and group-leader access server-side", async () => {
   assert.match(accounts, /admin\.role !== "captain"/);
 });
 
-test("provides clickable group profiles with reserved media slots", async () => {
+test("provides clickable group profiles with group media", async () => {
   const [overview, profile, groups, applicant] = await Promise.all([
     read("app/groups/page.tsx"), read("app/groups/[slug]/page.tsx"),
     read("lib/groups.ts"), read("app/apply/page.tsx"),
   ]);
   assert.match(overview, /href={`\/groups\/\${group\.slug}`}/);
   assert.match(profile, /generateStaticParams/);
-  assert.match(profile, /IMAGE PLACEHOLDER/);
+  assert.doesNotMatch(profile, /IMAGE PLACEHOLDER|IMAGE SLOT|图片预留位/);
   assert.match(profile, /unit-theme-\${group\.slug}/);
   assert.match(groups, /slug: "mechanical"/);
   assert.match(groups, /slug: "algorithm"/);

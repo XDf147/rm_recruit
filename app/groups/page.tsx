@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { GROUP_DETAILS } from "../../lib/groups";
 import { PublicFooter, PublicHeader } from "../components/PublicHeader";
 
 export const metadata: Metadata = { title: "战队组别" };
+
+const groupCardImages: Record<(typeof GROUP_DETAILS)[number]["slug"], string> = {
+  mechanical: "/images/groups/mechanical/机械组.jpg",
+  control: "/images/groups/control/电控组.jpg",
+  hardware: "/images/groups/hardware/硬件组.jpg",
+  algorithm: "/images/groups/algorithm/算法组.jpg",
+  operations: "/images/groups/operations/CCTV采访.jpg",
+};
 
 export default function GroupsPage() {
   return (
@@ -15,7 +24,10 @@ export default function GroupsPage() {
           <div className="groups-hero-copy">
             <p className="bp-kicker"><span>战队组别</span> TEAM ASSEMBLY / 05 UNITS</p>
             <h1 id="groups-title">一辆机器人，<br /><em>五种工程语言。</em></h1>
-            <p>每个组都在解决不同的问题，也在同一条协作链路上彼此交接。点击任一组别，看看日常任务、技能路径和未来作品展示位。</p>
+            <p>
+              每个组都在解决不同的问题，也在同一条协作链路上彼此交接。
+              点击任一组别，了解日常任务、技能路径和团队作品。
+            </p>
             <div className="groups-hero-actions">
               <a href="#unit-roster">浏览五个组别 <span>↓</span></a>
               <Link href="/apply">直接投递 <span>↗</span></Link>
@@ -26,7 +38,7 @@ export default function GroupsPage() {
             <header><small>SYSTEM MAP</small><b>从结构到赛场表达</b></header>
             <ol>
               {GROUP_DETAILS.map((group, index) => (
-                <li key={group.code}>
+                <li className={`assembly-unit-${group.slug}`} key={group.code}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <div><b>{group.name}</b><small>{group.role}</small></div>
                   <i>{group.code}</i>
@@ -49,8 +61,7 @@ export default function GroupsPage() {
                 <article>
                   <header><span>UNIT {String(index + 1).padStart(2, "0")}</span><i>{group.studio}</i></header>
                   <div className="unit-card-mark" aria-hidden="true">
-                    <strong>{group.code}</strong>
-                    <span /><span /><span />
+                    <Image src={groupCardImages[group.slug]} alt="" fill sizes="(max-width: 760px) 100vw, 50vw" />
                   </div>
                   <div className="unit-card-copy">
                     <small>{group.role}</small>
@@ -66,7 +77,13 @@ export default function GroupsPage() {
 
         <section className="groups-collaboration" aria-label="跨组协作说明">
           <div className="collaboration-index"><span>05</span><small>UNITS<br />ONE TEAM</small></div>
-          <div><small>NOT SURE YET?</small><h2>方向可以晚一点确定，行动不必。</h2><p>投递时选择“不确定”不会降低优先级。队长和各组组长会结合你的经历、兴趣与现场沟通共同分流。</p></div>
+          <div>
+            <small>NOT SURE YET?</small>
+            <h2>方向可以晚一点确定，行动不必。</h2>
+            <p>
+              投递时选择“不确定”不会降低优先级。队长和各组组长会结合你的经历、兴趣与现场沟通共同分流。
+            </p>
+          </div>
           <Link href="/apply">带着问题去投递 <span>↗</span></Link>
         </section>
       </div>

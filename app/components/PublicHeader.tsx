@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 type ActivePage = "apply" | "groups" | "guide";
@@ -10,9 +11,14 @@ export function PublicHeader({ active }: { active: ActivePage }) {
   ];
   return (
     <header className="blueprint-header public-header">
-      <Link className="brand" href="/apply" aria-label="RoboMaster 招新首页">
-        <span className="brand-mark">R</span>
-        <span className="brand-copy"><b>RoboMaster</b><small>招新系统 · RM RECRUIT</small></span>
+      <Link className="brand" href="/" aria-label="RoboMaster 招新首页">
+        <span className="brand-mark brand-logo">
+          <Image src="/images/brand/polarbear.png" alt="" width={44} height={44} />
+        </span>
+        <span className="brand-copy">
+          <b>北极熊机器人战队</b>
+          <small>招新系统 · Polar Bear</small>
+        </span>
       </Link>
       <nav className="blueprint-nav" aria-label="公开站点导航">
         {links.map((link) => <Link className={active === link.key ? "active" : ""} href={link.href} key={link.key}>{link.label}</Link>)}
@@ -23,5 +29,10 @@ export function PublicHeader({ active }: { active: ActivePage }) {
 }
 
 export function PublicFooter() {
-  return <footer className="public-footer"><span>RM RECRUIT SYSTEM · ENGINEERING BLUEPRINT</span><span>保持好奇 · 持续迭代 · 并肩作战</span></footer>;
+  return (
+    <footer className="public-footer">
+      <span>RM RECRUIT SYSTEM · ENGINEERING BLUEPRINT</span>
+      <span>保持好奇 · 持续迭代 · 并肩作战</span>
+    </footer>
+  );
 }

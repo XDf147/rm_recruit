@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { SafeAdmin } from "../../lib/auth";
 import { GROUP_NAMES } from "../../lib/groups";
@@ -95,7 +96,15 @@ export function AdminDashboard({ admin, initialApplications }: { admin: SafeAdmi
   return (
     <main className="site blueprint-shell admin-shell">
       <header className="admin-header">
-        <a className="brand" href="/admin"><span className="brand-mark">R</span><span className="brand-copy"><b>RoboMaster</b><small>审核工作台 · ADMIN</small></span></a>
+        <a className="brand" href="/admin">
+          <span className="brand-mark brand-logo">
+            <Image src="/images/brand/polarbear.png" alt="" width={44} height={44} />
+          </span>
+          <span className="brand-copy">
+            <b>北极熊机器人战队</b>
+            <small>审核工作台 · Polar Bear</small>
+          </span>
+        </a>
         <div className="admin-scope"><i>{admin.role === "captain" ? "CAPTAIN" : "GROUP LEADER"}</i><span>{admin.role === "captain" ? "全部简历权限" : `${admin.groupName} + 不确定`}</span></div>
         <div className="admin-profile"><span><small>当前管理员</small><b>{admin.displayName}</b></span><button onClick={logout}>退出登录</button></div>
       </header>

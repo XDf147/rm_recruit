@@ -11,13 +11,19 @@ export function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const payload = (await request.json().catch(() => ({}))) as { username?: string; password?: string };
-  const username = payload.username?.trim() ?? "";
-  const password = payload.password ?? "";
+  const username = typeof payload.username === "string" ? payload.username.trim() : "";
+  const password = typeof payload.password === "string" ? payload.password : "";
   if (!username || !password) return NextResponse.json({ error: "请输入账号和密码" }, { status: 400 });
+  if (username.length > 32 || password.length > 256) {
+    return NextResponse.json({ error: "账号或密码格式无效" }, { status: 400 });
+  }
 
   const adminCount = (getDb().prepare("SELECT COUNT(*) AS count FROM admins").get() as { count: number }).count;
   if (adminCount === 0) {
-    return NextResponse.json({ error: "尚未初始化队长账号，请先配置 CAPTAIN_USERNAME 和 CAPTAIN_PASSWORD 后重启容器" }, { status: 503 });
+    return NextResponse.json(
+      { error: "尚未初始化队长账号，请先配置 CAPTAIN_USERNAME 和 CAPTAIN_PASSWORD 后重启容器" },
+      { status: 503 },
+    );
   }
 
   const result = authenticate(username, password);
