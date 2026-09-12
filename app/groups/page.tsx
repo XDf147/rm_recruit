@@ -4,7 +4,7 @@ import Link from "next/link";
 import { GROUP_DETAILS } from "../../lib/groups";
 import { PublicFooter, PublicHeader } from "../components/PublicHeader";
 
-export const metadata: Metadata = { title: "战队组别" };
+export const metadata: Metadata = { title: "组别介绍" };
 
 const groupCardImages: Record<(typeof GROUP_DETAILS)[number]["slug"], string> = {
   mechanical: "/images/groups/mechanical/机械组.jpg",
@@ -22,7 +22,7 @@ export default function GroupsPage() {
       <div className="groups-hub">
         <section className="groups-hub-hero" aria-labelledby="groups-title">
           <div className="groups-hero-copy">
-            <p className="bp-kicker"><span>战队组别</span> TEAM ASSEMBLY / 05 UNITS</p>
+            <p className="bp-kicker"><span>组别介绍</span> TEAM ASSEMBLY / 05 UNITS</p>
             <h1 id="groups-title">一辆机器人，<br /><em>五种工程语言。</em></h1>
             <p>
               每个组都在解决不同的问题，也在同一条协作链路上彼此交接。

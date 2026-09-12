@@ -88,7 +88,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: GroupPageProps): Promise<Metadata> {
   const { slug } = await params;
   const group = GROUP_DETAILS.find((item) => item.slug === slug);
-  return group ? { title: `${group.name}｜战队组别`, description: group.description } : {};
+  return group ? { title: `${group.name}｜组别介绍`, description: group.description } : {};
 }
 
 export default async function GroupProfilePage({ params }: GroupPageProps) {
@@ -107,7 +107,7 @@ export default async function GroupProfilePage({ params }: GroupPageProps) {
 
       <article className="unit-profile-page">
         <nav className="unit-breadcrumb" aria-label="面包屑导航">
-          <Link href="/groups">战队组别</Link><span>/</span><b>{group.name}</b>
+          <Link href="/groups">组别介绍</Link><span>/</span><b>{group.name}</b>
           <i>{String(groupIndex + 1).padStart(2, "0")} — {String(GROUP_DETAILS.length).padStart(2, "0")}</i>
         </nav>
 
