@@ -33,15 +33,15 @@ export function LoginForm() {
 
   return (
     <section className="login-card">
-      <header><span>01</span><div><small>IDENTITY VERIFICATION</small><h2>管理员登录</h2></div></header>
+      <header><span>01</span><div><small>MEMBER SIGN IN</small><h2>战队账号登录</h2></div></header>
       <form onSubmit={login}>
-        <label><span>管理员账号</span><input name="username" required autoComplete="username" placeholder="输入账号" /></label>
-        <label><span>密码</span><input name="password" required type="password" autoComplete="current-password" placeholder="输入密码" /></label>
+        <label><span>账号</span><input name="username" required autoComplete="username" placeholder="请输入战队账号" /></label>
+        <label><span>密码</span><input name="password" required type="password" autoComplete="current-password" placeholder="请输入密码" /></label>
         {error && <p className="login-error" role="alert">{error}</p>}
-        <button disabled={submitting}>{submitting ? "验证中…" : "进入审核台"}<span>→</span></button>
+        <button disabled={submitting}>{submitting ? "登录中…" : "登录"}<span>→</span></button>
       </form>
-      <aside><i>▣</i><p><b>账号由队长统一创建</b><small>若无法登录，请联系队长检查负责组别和账号状态。</small></p></aside>
-      <Link href="/apply">← 返回队员投递端</Link>
+      <aside><i>▣</i><p><b>还没有账号或无法登录？</b><small>请联系队长开通或重置账号。</small></p></aside>
+      <Link href="/">← 返回战队主页</Link>
     </section>
   );
 }

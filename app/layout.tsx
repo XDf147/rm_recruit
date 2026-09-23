@@ -2,9 +2,17 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "RM Recruit｜RoboMaster 战队招新", template: "%s｜RM Recruit" },
-  description: "RoboMaster 战队简历投递与分组审核系统。",
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  applicationName: "Polar Bear 战队",
+  title: {
+    default: "Polar Bear 战队｜以我之眼，探索无限｜Команда Polar Bear · Моими глазами — к бесконечности",
+    template: "%s｜Polar Bear 战队",
+  },
+  description: "Polar Bear 机器人战队——以我之眼，探索无限。Моими глазами — к бесконечности.",
+  icons: {
+    icon: [{ url: "/images/brand/polarbear.png", type: "image/png" }],
+    shortcut: "/images/brand/polarbear.png",
+    apple: "/images/brand/polarbear.png",
+  },
 };
 
 export default function RootLayout({

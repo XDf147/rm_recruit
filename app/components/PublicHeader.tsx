@@ -68,7 +68,7 @@ export function PublicFooter() {
             <small>RECRUIT / 招新</small>
             <Link href="/apply" transitionTypes={["nav-forward"]}>在线投递</Link>
             <Link href="/groups">了解组别</Link>
-            <Link href="/admin/login">管理员登录</Link>
+            <Link href="/admin/login">队员登录</Link>
           </section>
         </nav>
       </div>

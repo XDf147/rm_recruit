@@ -5,13 +5,13 @@ import { redirect } from "next/navigation";
 import { getCurrentAdmin } from "../../../lib/auth";
 import { LoginForm } from "./LoginForm";
 
-export const metadata: Metadata = { title: "管理员登录" };
+export const metadata: Metadata = { title: "队员登录" };
 
 export default async function AdminLoginPage() {
   if (await getCurrentAdmin()) redirect("/admin");
   return (
     <main className="admin-login-page">
-      <div className="login-blueprint" aria-hidden="true"><span>RM / AUTH</span><i /><i /><i /></div>
+      <div className="login-blueprint" aria-hidden="true"><span>RM / MEMBER</span><i /><i /><i /></div>
       <section className="login-copy">
         <Link className="brand login-brand" href="/">
           <span className="brand-mark brand-logo">
@@ -23,11 +23,11 @@ export default async function AdminLoginPage() {
           </span>
         </Link>
         <div>
-          <p className="bp-kicker"><span>受限区域</span> ADMIN WORKSPACE</p>
-          <h1>审核台<br />安全入口。</h1>
-          <p>队长可查看全部简历并管理组长账号；组长仅能访问本人负责组和“不确定”的投递。</p>
+          <p className="bp-kicker"><span>成员登录</span> MEMBER ACCESS</p>
+          <h1>战队成员<br />登录入口。</h1>
+          <p>使用战队账号登录。系统会根据账号身份开放相应功能。</p>
         </div>
-        <footer>AUTHORIZED PERSONNEL ONLY · 审核记录仅限内部使用</footer>
+        <footer>以我之眼，探索无限 · МОИМИ ГЛАЗАМИ — К БЕСКОНЕЧНОСТИ</footer>
       </section>
       <LoginForm />
     </main>

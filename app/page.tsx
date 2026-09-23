@@ -6,7 +6,7 @@ import { GROUP_DETAILS } from "../lib/groups";
 import { PublicFooter, PublicHeader } from "./components/PublicHeader";
 
 export const metadata: Metadata = {
-  title: "加入北极熊机器人战队",
+  title: { absolute: "Polar Bear 战队｜以我之眼，探索无限｜Команда Polar Bear · Моими глазами — к бесконечности" },
   description: "从这里了解北极熊机器人战队，并进入招新投递页面。",
 };
 
@@ -30,6 +30,14 @@ const robotCards = [
   { title: "视觉自瞄", label: "VISION SYSTEM", image: "/images/groups/algorithm/视觉自瞄.jpg" },
   { title: "自主导航", label: "NAVIGATION", image: "/images/groups/algorithm/导航图.jpg" },
 ] as const;
+
+const groupHeroImages: Record<(typeof GROUP_DETAILS)[number]["slug"], string> = {
+  mechanical: "/images/groups/mechanical/赛场车图.jpg",
+  control: "/images/groups/control/赛场电控组.jpg",
+  hardware: "/images/groups/hardware/硬件组仪器.jpg",
+  algorithm: "/images/groups/algorithm/赛场算法组.jpg",
+  operations: "/images/groups/operations/赛场.jpg",
+};
 
 export default function Home() {
   return (
@@ -107,12 +115,20 @@ export default function Home() {
             <div><small>TEAM STRUCTURE</small><h2>组别介绍</h2></div>
             <p>五种工作方式围绕同一个目标协作，找到最适合你的工作台。</p>
           </header>
-          <div className="home-group-list">
+          <div className="home-group-cards">
             {GROUP_DETAILS.map((group, index) => (
-              <Link href={`/groups/${group.slug}`} key={group.slug}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div><small>{group.code} / {group.studio}</small><h3>{group.name}</h3></div>
-                <p>{group.role}</p><b>↗</b>
+              <Link className={`home-group-card unit-theme-${group.slug}`} href={`/groups/${group.slug}`} key={group.slug}>
+                <div className="home-group-card-copy">
+                  <p className="home-group-card-kicker"><span>{group.code}</span>{group.studio}<i>0{index + 1} / 0{GROUP_DETAILS.length}</i></p>
+                  <h3>{group.name}<small>{group.role}</small></h3>
+                  <strong>{group.slogan}</strong>
+                  <p className="home-group-card-lead">{group.lead}</p>
+                  <span className="home-group-card-action">了解这个组 <b>↗</b></span>
+                </div>
+                <div className="home-group-card-media">
+                  <Image src={groupHeroImages[group.slug]} alt={`${group.name}工作与赛场照片`} fill sizes="(max-width: 650px) 100vw, 50vw" />
+                  <div><b>{group.media[0].label}</b><small>{group.media[0].caption}</small></div>
+                </div>
               </Link>
             ))}
           </div>
