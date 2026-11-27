@@ -23,7 +23,7 @@ export function WorldScene() {
   const [selected, setSelected] = useState<number | null>(null);
   const [entered, setEntered] = useState(false);
   const [direction, setDirection] = useState(1);
-  const { current } = useShowcase();
+  const { current, interactive } = useShowcase();
   const mobile = useSyncExternalStore(watchMobile, () => matchMedia(mobileQuery).matches, () => false);
   const index = selected ?? 0;
   const group = GROUP_DETAILS[index];
@@ -36,7 +36,7 @@ export function WorldScene() {
     requestAnimationFrame(() => list.current?.querySelectorAll("button")[index]?.focus({ preventScroll: true }));
   }
   useEffect(() => {
-    if (current !== "world" || !detail) return;
+    if (current !== "world" || !interactive || !detail) return;
     function key(e: KeyboardEvent) {
       if (document.querySelector("dialog[open]") || e.altKey || e.metaKey || e.ctrlKey) return;
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); step(e.key === "ArrowLeft" ? -1 : 1); }
@@ -47,7 +47,7 @@ export function WorldScene() {
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [current, detail, mobile, index]);
+  }, [current, interactive, detail, mobile, index]);
 
   return <div className="world-panel" data-detail={detail} data-opening={entered}>
     <div className="screen-word" aria-hidden="true">WORLD</div>

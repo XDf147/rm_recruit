@@ -3,10 +3,11 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { chapters, type ChapterId } from "./content";
+import { EntryLoader } from "./EntryLoader";
 
 type Frame = { current: ChapterId; previous: ChapterId | null };
 const first: Frame = { current: "index", previous: null };
-const DeckContext = createContext(first);
+const DeckContext = createContext({ ...first, interactive: true });
 export const useShowcase = () => useContext(DeckContext);
 
 const aliases: Record<string, ChapterId> = {
@@ -18,13 +19,22 @@ function chapterAt(hash: string) {
   return id === "site-footer" ? "more" : aliases[id] ?? ids.find((key) => key === id);
 }
 
-export function ShowcaseDeck({ children }: { children: React.ReactNode }) {
+// 完整刷新会重播入场，同一文档内返回首页沿用已完成的状态。
+let entryPlayed = false;
+
+export function ShowcaseDeck({ children, footer }: { children: React.ReactNode; footer: React.ReactNode }) {
   const [frame, setFrame] = useState(first);
+  const [loading, setLoading] = useState(() => !entryPlayed);
   const [footerOpen, setFooterOpen] = useState(false);
   const current = useRef<ChapterId>("index");
   const atFooter = useRef(false);
-  const scrollFrame = useRef(0);
+  const footerPanel = useRef<HTMLDivElement>(null);
   const finish = useRef(0);
+
+  const finishEntry = useCallback(() => {
+    entryPlayed = true;
+    setLoading(false);
+  }, []);
 
   const show = useCallback((hash: string, mode: "push" | "replace" | "restore", instantly = false) => {
     const next = chapterAt(hash);
@@ -36,16 +46,6 @@ export function ShowcaseDeck({ children }: { children: React.ReactNode }) {
     if (mode !== "restore" && location.hash !== hash) {
       if (mode === "push") history.pushState(history.state, "", hash);
       else history.replaceState(history.state, "", hash);
-    }
-    cancelAnimationFrame(scrollFrame.current);
-    if (footer) {
-      scrollFrame.current = requestAnimationFrame(() => document.getElementById("site-footer")?.scrollIntoView({ behavior: reduced || instantly ? "instant" : "smooth", block: "end" }));
-    } else {
-      if (document.getElementById("site-footer")?.contains(document.activeElement)) {
-        document.getElementById("chapter-stage")?.focus({ preventScroll: true });
-      }
-      window.scrollTo({ top: 0, behavior: "instant" });
-      scrollFrame.current = requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "instant" }));
     }
     if (current.current === next) return;
     const previous = current.current;
@@ -72,13 +72,21 @@ export function ShowcaseDeck({ children }: { children: React.ReactNode }) {
     window.addEventListener("popstate", restore);
     return () => {
       window.clearTimeout(finish.current);
-      cancelAnimationFrame(scrollFrame.current);
       window.removeEventListener("hashchange", restore);
       window.removeEventListener("popstate", restore);
     };
   }, [show]);
 
+  useLayoutEffect(() => {
+    if (loading) return;
+    if (footerOpen) footerPanel.current?.focus({ preventScroll: true });
+    else if (footerPanel.current?.contains(document.activeElement)) {
+      document.getElementById("chapter-stage")?.focus({ preventScroll: true });
+    }
+  }, [footerOpen, loading]);
+
   useEffect(() => {
+    if (loading) return;
     let lastMove = -Infinity;
     let lastWheel = -Infinity;
     let sum = 0;
@@ -141,7 +149,7 @@ export function ShowcaseDeck({ children }: { children: React.ReactNode }) {
       window.removeEventListener("touchstart", start);
       window.removeEventListener("touchend", end);
     };
-  }, [show]);
+  }, [show, loading]);
 
   function click(event: MouseEvent<HTMLDivElement>) {
     if (event.button || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
@@ -154,7 +162,13 @@ export function ShowcaseDeck({ children }: { children: React.ReactNode }) {
 
   const direction = frame.previous && ids.indexOf(frame.current) < ids.indexOf(frame.previous) ? "back" : "forward";
   const fade = frame.previous && [frame.current, frame.previous].every((id) => id === "index" || id === "information");
-  return <DeckContext.Provider value={frame}>
-    <div className="showcase" onClickCapture={click} data-footer={footerOpen} data-direction={direction} data-transition={fade ? "fade" : "wipe"}>{children}</div>
+  return <DeckContext.Provider value={{ ...frame, interactive: !loading && !footerOpen }}>
+    <div className="showcase" onClickCapture={click} data-footer={footerOpen} data-chapter={frame.current} data-direction={direction} data-transition={fade ? "fade" : "wipe"}>
+      <div className="showcase-track" inert={loading}>
+        <div inert={footerOpen}>{children}</div>
+        <div ref={footerPanel} tabIndex={-1} inert={!footerOpen}>{footer}</div>
+      </div>
+      {loading && <EntryLoader onFinish={finishEntry} />}
+    </div>
   </DeckContext.Provider>;
 }

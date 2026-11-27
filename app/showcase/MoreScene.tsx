@@ -18,7 +18,7 @@ type Topic = "apply" | "honors";
 const report = "https://www.smbu.edu.cn/info/4631/110621.htm";
 
 export function MoreScene() {
-  const { current } = useShowcase();
+  const { current, interactive } = useShowcase();
   const [topic, setTopic] = useState<Topic | null>(null);
   const [inside, setInside] = useState(false);
   const [contact, setContact] = useState(false);
@@ -43,7 +43,7 @@ export function MoreScene() {
     return () => window.removeEventListener("hashchange", fromHash);
   }, []);
   useEffect(() => {
-    if (!inside || current !== "more") return;
+    if (!inside || !interactive || current !== "more") return;
     back.current?.focus({ preventScroll: true });
     function keys(e: KeyboardEvent) {
       if (e.key === "Escape" && !document.querySelector("dialog[open]")) {
@@ -55,7 +55,7 @@ export function MoreScene() {
     }
     window.addEventListener("keydown", keys);
     return () => window.removeEventListener("keydown", keys);
-  }, [inside, current, topic]);
+  }, [inside, current, interactive, topic]);
 
   const options = hiring ? GROUP_DETAILS.map((item) => item.name) : ["2024 赛季"];
   return <>
@@ -80,7 +80,7 @@ export function MoreScene() {
       <div className="topic-progress" role="group" aria-label="切换主题">{options.map((label,n) => <button type="button" key={label} aria-label={label} aria-pressed={!hiring || n === index} onClick={() => hiring && setIndex(n)} />)}</div>
       <button className="topic-back" ref={back} type="button" onClick={returnToDoors}>‹ 返回 <small>GO BACK</small></button>
     </div>}
-    {contact && <SiteDialog title="联系战队" label="CONTACT US" onClose={() => { setContact(false); if (location.hash === "#contact") history.replaceState(history.state, "", "#more"); }}>
+    {contact && interactive && current === "more" && <SiteDialog title="联系战队" label="CONTACT US" onClose={() => { setContact(false); if (location.hash === "#contact") history.replaceState(history.state, "", "#more"); }}>
       <div className="archive-list">
         <a href={channels.email}><small>EMAIL</small>polarbear_plan@163.com<b>↗</b></a>
         <a href={channels.bilibili} target="_blank" rel="noreferrer"><small>BILIBILI</small>住在实验室的北极熊<b>↗</b></a>

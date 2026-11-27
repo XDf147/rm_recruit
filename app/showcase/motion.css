@@ -1,7 +1,11 @@
 /* 各章节共享一个固定舞台；遮罩在两张静止画面之间展开。 */
-html:has(.showcase) { scroll-snap-type: none; scroll-behavior: auto; scrollbar-width: none; }
-.showcase { --cyan: #19d1ff; --turn: 1s cubic-bezier(.45,0,.55,1); }
-.scene-stage { height: 100svh; position: relative; isolation: isolate; overflow: hidden; touch-action: pan-x pinch-zoom; outline: 0; }
+html:has(.showcase) { overflow: clip; scroll-behavior: auto; }
+.showcase { --cyan: #19d1ff; --turn: 1s cubic-bezier(.45,0,.55,1); height: 100dvh; overflow: clip; }
+.showcase-track { transform: translateY(0); }
+.showcase[data-chapter=more] .showcase-track { transition: transform .6s ease; }
+/* 轨道包含一屏内容和自然高度的页脚，两者高度之差即为展开距离。 */
+.showcase[data-footer=true] .showcase-track { transform: translateY(calc(100dvh - 100%)); }
+.scene-stage { height: 100dvh; position: relative; isolation: isolate; overflow: hidden; touch-action: pan-x pinch-zoom; outline: 0; }
 .scene-stage > .scene { position: absolute; inset: 0; min-height: 0; height: 100%; visibility: hidden; pointer-events: none; }
 .scene-stage > .scene[data-state=active], .scene-stage > .scene[data-state=enter] { visibility: visible; z-index: 2; pointer-events: auto; }
 .scene-stage > .scene[data-state=exit] { visibility: visible; z-index: 1; }
@@ -11,8 +15,12 @@ html:has(.showcase) { scroll-snap-type: none; scroll-behavior: auto; scrollbar-w
 @keyframes deck-back { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
 .index-film { transform: scale(1.2); transition: transform 2s ease; }
 .scene-index:is([data-state=active],[data-state=enter]) .index-film { transform: scale(1); }
+.showcase:has(> [data-leaving=false]) .index-film { transform: scale(1.2); }
+.index-stencil { transition: opacity .6s ease 2s; }
+.showcase:has(> [data-leaving=false]) .index-stencil { opacity: 0; transition: none; }
 .index-signature { transition: transform 1s ease, opacity 1s; }
-.scene-index:is([data-state=exit],[data-state=idle]) .index-signature { transform: translateY(var(--foot)); opacity: 0; }
+.scene-index:is([data-state=exit],[data-state=idle]) .index-signature,
+.showcase:has(> [data-leaving=false]) .index-signature { transform: translateY(var(--foot)); opacity: 0; }
 .news-layout { transition: opacity 1s ease; }
 .showcase[data-transition=fade] .scene-information[data-state=enter] .news-layout { animation: content-fade 1s ease both; }
 .showcase[data-transition=fade] .scene-information[data-state=exit] .news-layout { opacity: 0; }
@@ -151,7 +159,6 @@ html:has(.showcase) { scroll-snap-type: none; scroll-behavior: auto; scrollbar-w
 .more-door:is(:hover,:focus-visible) .door-word i { padding-right: 12px; }
 @media (orientation:portrait) { .media-read { left: var(--inset); height: 32px; bottom: calc(var(--foot) - 23px); font-size: 12px; } }
 
-html:has(.showcase[data-footer=false]) { overflow-y: clip; }
 .robot-cards { scroll-snap-type: none; }
 @media (orientation:portrait) {
   .showcase { --mast: clamp(66px,9.25svh,82px); }

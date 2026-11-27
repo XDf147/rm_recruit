@@ -1,4 +1,3 @@
-html:has(.showcase) { scroll-snap-type: y mandatory; scrollbar-width: none; scroll-behavior: smooth; }
 html:has(dialog[open]) { overflow: hidden; }
 .showcase {
   --cyan: #18c9ed;
@@ -14,7 +13,6 @@ html:has(dialog[open]) { overflow: hidden; }
 .showcase :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 .scene {
   position: relative; isolation: isolate; height: 100svh; min-height: 594px; overflow: hidden;
-  scroll-snap-align: start; scroll-snap-stop: always;
   background: #151617;
 }
 .scene::before {

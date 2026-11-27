@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <ShowcaseDeck>
+    <ShowcaseDeck footer={<PublicFooter home />}>
       <PublicHeader />
       <main className="scene-stage" id="chapter-stage" tabIndex={-1}>
         <Scene id="index"><IndexScene /></Scene>
@@ -29,7 +29,6 @@ export default function Home() {
         <Scene id="media"><MediaScene /></Scene>
         <Scene id="more"><MoreScene /></Scene>
       </main>
-      <PublicFooter home />
     </ShowcaseDeck>
   );
 }
