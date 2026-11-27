@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: process.cwd(),
   poweredByHeader: false,
+  devIndicators: false,
   serverExternalPackages: ["better-sqlite3"],
 };
 

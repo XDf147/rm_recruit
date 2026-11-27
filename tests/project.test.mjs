@@ -17,12 +17,12 @@ test("uses a self-hosted standalone Docker build", async () => {
 });
 
 test("keeps applicant and admin surfaces separate", async () => {
-  const [home, applicant, admin, publicApi, protectedApi] = await Promise.all([
-    read("app/page.tsx"), read("app/apply/page.tsx"), read("app/admin/page.tsx"),
+  const [home, intro, applicant, admin, publicApi, protectedApi] = await Promise.all([
+    read("app/page.tsx"), read("app/showcase/IndexScene.tsx"), read("app/apply/page.tsx"), read("app/admin/page.tsx"),
     read("app/api/applications/route.ts"), read("app/api/admin/applications/route.ts"),
   ]);
-  assert.match(home, /className="entry-page"/);
-  assert.match(home, /href="\/apply"/);
+  assert.match(home, /<Scene id="index"><IndexScene/);
+  assert.match(intro, /href="\/apply"/);
   assert.match(applicant, /<ApplicationForm/);
   assert.match(admin, /getCurrentAdmin/);
   assert.match(admin, /redirect\("\/admin\/login"\)/);
@@ -69,4 +69,21 @@ test("provides clickable group profiles with group media", async () => {
   assert.match(groups, /slug: "mechanical"/);
   assert.match(groups, /slug: "algorithm"/);
   assert.match(applicant, /initialGroup={initialGroup}/);
+});
+
+test("connects the six homepage chapters and requested RM2023 portraits", async () => {
+  const [home, content] = await Promise.all([read("app/page.tsx"), read("app/showcase/content.ts")]);
+  assert.deepEqual([...home.matchAll(/<Scene id="([^"]+)"/g)].map((match) => match[1]),
+    ["index", "information", "operator", "world", "media", "more"]);
+
+  const expected = {
+    infantry: "neu-infantry", hero: "scut-hero", engineer: "sjtu-engineer",
+    sentry: "scut-sentry", aerial: "neu-aerial", dart: "scut-dart",
+  };
+  for (const [id, portrait] of Object.entries(expected)) {
+    const path = `/images/showcase/rm23-${portrait}.webp`;
+    assert.ok(content.includes(`id: "${id}", image: "${path}"`));
+    const asset = await readFile(new URL(`public${path}`, root));
+    assert.equal(asset.toString("ascii", 8, 12), "WEBP");
+  }
 });

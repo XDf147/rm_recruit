@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export function LoginForm() {
+export function LoginForm({ embedded = false }: { embedded?: boolean } = {}) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -33,7 +33,7 @@ export function LoginForm() {
 
   return (
     <section className="login-card">
-      <header><span>01</span><div><small>MEMBER SIGN IN</small><h2>战队账号登录</h2></div></header>
+      {!embedded && <header><span>01</span><div><small>MEMBER SIGN IN</small><h2>战队账号登录</h2></div></header>}
       <form onSubmit={login}>
         <label><span>账号</span><input name="username" required autoComplete="username" placeholder="请输入战队账号" /></label>
         <label><span>密码</span><input name="password" required type="password" autoComplete="current-password" placeholder="请输入密码" /></label>
@@ -41,7 +41,7 @@ export function LoginForm() {
         <button disabled={submitting}>{submitting ? "登录中…" : "登录"}<span>→</span></button>
       </form>
       <aside><i>▣</i><p><b>还没有账号或无法登录？</b><small>请联系队长开通或重置账号。</small></p></aside>
-      <Link href="/">← 返回战队主页</Link>
+      {!embedded && <Link href="/">← 返回战队主页</Link>}
     </section>
   );
 }

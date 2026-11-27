@@ -2,20 +2,12 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GROUP_DETAILS } from "../../../lib/groups";
+import { GROUP_DETAILS, groupCovers } from "../../../lib/groups";
 import { PublicFooter, PublicHeader } from "../../components/PublicHeader";
 import { DraggableHeroImage } from "./DraggableHeroImage";
 
 type GroupPageProps = { params: Promise<{ slug: string }> };
 type GroupSlug = (typeof GROUP_DETAILS)[number]["slug"];
-
-const heroImages: Record<GroupSlug, string> = {
-  mechanical: "/images/groups/mechanical/赛场车图.jpg",
-  control: "/images/groups/control/赛场电控组.jpg",
-  hardware: "/images/groups/hardware/硬件组仪器.jpg",
-  algorithm: "/images/groups/algorithm/赛场算法组.jpg",
-  operations: "/images/groups/operations/赛场.jpg",
-};
 
 const toolboxImages: Record<GroupSlug, Record<string, { src: string; wide?: boolean }>> = {
   mechanical: {
@@ -99,7 +91,7 @@ export default async function GroupProfilePage({ params }: GroupPageProps) {
   const group = GROUP_DETAILS[groupIndex];
   const previous = GROUP_DETAILS[(groupIndex - 1 + GROUP_DETAILS.length) % GROUP_DETAILS.length];
   const next = GROUP_DETAILS[(groupIndex + 1) % GROUP_DETAILS.length];
-  const heroImage = heroImages[group.slug];
+  const heroImage = groupCovers[group.slug];
 
   return (
     <main className={`site unit-profile-shell unit-theme-${group.slug}`}>
