@@ -17,13 +17,13 @@ export default async function ApplyPage({ searchParams }: { searchParams: Promis
       exit={{ "nav-forward": "nav-forward", "nav-back": "nav-back", default: "none" }}
       default="none"
     >
-      <main className="site blueprint-shell">
+      <main className="site blueprint-shell apply-shell">
         <PublicHeader active="apply" />
         <div className="blueprint-apply">
           <aside className="blueprint-apply-copy">
             <p className="bp-kicker"><span>加入我们</span> RM TEAM / RECRUITMENT</p>
-            <h1>从一张空白蓝图开始。</h1>
-            <p>你的经验不必完美。清晰地告诉我们：你做过什么、学到了什么、下一步想去哪里。</p>
+            <h1>加入北极熊战队</h1>
+            <p>你的经验不必完美。告诉我们你做过什么、学到了什么，以及下一步想尝试什么。</p>
             <ol>
               <li className="done"><i>01</i><span><b>了解组别方向</b><small>找到最想投入的战场</small></span></li>
               <li className="active"><i>02</i><span><b>填写投递信息</b><small>最多选择两个意向组别</small></span></li>

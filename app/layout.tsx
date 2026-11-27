@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./public-surfaces.css";
 
 export const metadata: Metadata = {
   applicationName: "Polar Bear 战队",

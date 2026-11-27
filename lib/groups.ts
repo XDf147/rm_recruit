@@ -1,6 +1,14 @@
 export const GROUP_NAMES = ["机械组", "电控组", "硬件组", "算法组", "运营组"] as const;
 export const APPLICATION_GROUPS = [...GROUP_NAMES, "不确定"] as const;
 
+export const groupCovers = {
+  mechanical: "/images/groups/mechanical/赛场车图.jpg",
+  control: "/images/groups/control/赛场电控组.jpg",
+  hardware: "/images/groups/hardware/硬件组仪器.jpg",
+  algorithm: "/images/groups/algorithm/赛场算法组.jpg",
+  operations: "/images/groups/operations/赛场.jpg",
+} as const;
+
 export const GROUP_DETAILS = [
   {
     name: "机械组",

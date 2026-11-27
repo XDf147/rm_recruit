@@ -6,7 +6,7 @@ import { PublicFooter, PublicHeader } from "../components/PublicHeader";
 
 export const metadata: Metadata = { title: "组别介绍" };
 
-const groupCardImages: Record<(typeof GROUP_DETAILS)[number]["slug"], string> = {
+const portraits = {
   mechanical: "/images/groups/mechanical/机械组.jpg",
   control: "/images/groups/control/电控组.jpg",
   hardware: "/images/groups/hardware/硬件组.jpg",
@@ -15,80 +15,18 @@ const groupCardImages: Record<(typeof GROUP_DETAILS)[number]["slug"], string> = 
 };
 
 export default function GroupsPage() {
-  return (
-    <main className="site blueprint-shell groups-hub-shell">
-      <PublicHeader active="groups" />
-
-      <div className="groups-hub">
-        <section className="groups-hub-hero" aria-labelledby="groups-title">
-          <div className="groups-hero-copy">
-            <p className="bp-kicker"><span>组别介绍</span> TEAM ASSEMBLY / 05 UNITS</p>
-            <h1 id="groups-title">一辆机器人，<br /><em>五种工程语言。</em></h1>
-            <p>
-              每个组都在解决不同的问题，也在同一条协作链路上彼此交接。
-              点击任一组别，了解日常任务、技能路径和团队作品。
-            </p>
-            <div className="groups-hero-actions">
-              <a href="#unit-roster">浏览五个组别 <span>↓</span></a>
-              <Link href="/apply">直接投递 <span>↗</span></Link>
-            </div>
-          </div>
-
-          <aside className="assembly-map" aria-label="战队协作链路">
-            <header><small>SYSTEM MAP</small><b>从结构到赛场表达</b></header>
-            <ol>
-              {GROUP_DETAILS.map((group, index) => (
-                <li className={`assembly-unit-${group.slug}`} key={group.code}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <div><b>{group.name}</b><small>{group.role}</small></div>
-                  <i>{group.code}</i>
-                </li>
-              ))}
-            </ol>
-            <footer><span>INPUT</span><i /><span>ROBOT</span><i /><span>ARENA</span></footer>
-          </aside>
-        </section>
-
-        <section className="unit-roster" id="unit-roster" aria-labelledby="unit-roster-title">
-          <header className="unit-roster-heading">
-            <div><small>CHOOSE YOUR WORKBENCH</small><h2 id="unit-roster-title">找到你的工作台</h2></div>
-            <p>五个入口，五套不同的详情界面。<br />键盘用户可使用 Tab 依次浏览。</p>
-          </header>
-
-          <div className="unit-roster-grid">
-            {GROUP_DETAILS.map((group, index) => (
-              <Link className={`unit-roster-card unit-card-${group.slug}`} href={`/groups/${group.slug}`} key={group.name}>
-                <article>
-                  <header><span>UNIT {String(index + 1).padStart(2, "0")}</span><i>{group.studio}</i></header>
-                  <div className="unit-card-mark" aria-hidden="true">
-                    <Image src={groupCardImages[group.slug]} alt="" fill sizes="(max-width: 760px) 100vw, 50vw" />
-                  </div>
-                  <div className="unit-card-copy">
-                    <small>{group.role}</small>
-                    <h3>{group.name}</h3>
-                    <p>{group.slogan}</p>
-                  </div>
-                  <footer><span>{group.skills.slice(0, 3).join(" · ")}</span><b>打开详情 <i>→</i></b></footer>
-                </article>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="groups-collaboration" aria-label="跨组协作说明">
-          <div className="collaboration-index"><span>05</span><small>UNITS<br />ONE TEAM</small></div>
-          <div>
-            <small>NOT SURE YET?</small>
-            <h2>方向可以晚一点确定，行动不必。</h2>
-            <p>
-              投递时选择“不确定”不会降低优先级。队长和各组组长会结合你的经历、兴趣与现场沟通共同分流。
-            </p>
-          </div>
-          <Link href="/apply">带着问题去投递 <span>↗</span></Link>
-        </section>
-      </div>
-
-      <PublicFooter />
+  return <div className="group-directory">
+    <PublicHeader active="groups" />
+    <main className="directory-main">
+      <header><div><small>TEAM DIRECTORY</small><h1>组别介绍</h1></div><p>从结构设计到赛事记录，找到你想加入的工作台。</p></header>
+      <div className="directory-grid">{GROUP_DETAILS.map((group) => (
+        <Link href={`/groups/${group.slug}`} key={group.slug} className="directory-card">
+          <Image src={portraits[group.slug]} alt={group.name + "工作与赛场照片"} fill sizes="(max-width: 680px) 100vw, (max-width: 975px) 50vw, 20vw" />
+          <div><small>{group.studio}</small><h2>{group.name}</h2><p>{group.role}</p><span>打开组别档案 ↗</span></div>
+        </Link>
+      ))}</div>
+      <aside className="directory-apply"><p>还没确定方向？投递时可以选择“不确定”，和队员聊过再决定。</p><Link href="/apply">加入战队 ↗</Link></aside>
     </main>
-  );
+    <PublicFooter />
+  </div>;
 }
